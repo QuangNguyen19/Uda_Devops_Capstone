@@ -22,11 +22,13 @@
     - copy:
         src: /tmp/var.txt
         dest: /tmp/var.txt
-    - shell: export AWS_ACCESS_KEY_ID=$(head -n 1 /tmp/var.txt)
-      register: test
-    
-    - debug:
-        var: test
+
+    - command: export AWS_ACCESS_KEY_ID=$(sed -n '1p'  /tmp/var.txt)
+    - command: export AWS_SECRET_ACCESS_KEY=$(sed -n '2p'  /tmp/var.txt)
+    - command: export AWS_DEFAULT_REGION=$(sed -n '3p'  /tmp/var.txt)
+
+    - name: delete var file
+      command: rm -rf /tmp/var.txt
 
     # - name: Install pre-require packages
     #   yum:
