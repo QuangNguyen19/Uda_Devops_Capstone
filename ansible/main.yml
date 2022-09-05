@@ -15,6 +15,7 @@
     - name: "install python for Ansible."
       yum:
         name: python2
+        state: latest
         update_cache: yes
 
   tasks:
@@ -23,3 +24,6 @@
         dest: /tmp/var.txt
     - name: Install pre-require packages
       shell: cat /tmp/var.txt
+      register: test
+    - debug:
+        var: test
