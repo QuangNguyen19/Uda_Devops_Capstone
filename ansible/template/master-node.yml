@@ -13,11 +13,10 @@ Resources:
           ToPort: 22
           CidrIp: 0.0.0.0/0
         
-        - IpProtocol: "icmp"
+        - IpProtocol: icmp
           FromPort: -1
-          ToPort: -1, 
+          ToPort: -1 
           CidrIp: 0.0.0.0/0
-  
   
   EC2Instance:
     Type: AWS::EC2::Instance
