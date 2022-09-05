@@ -23,9 +23,15 @@
         src: /tmp/var.txt
         dest: /tmp/var.txt
 
-    - shell: export AWS_ACCESS_KEY_ID=$(sed -n '1p'  /tmp/var.txt )
-    - shell: export AWS_SECRET_ACCESS_KEY=$(sed -n '2p'  /tmp/var.txt )
-    - shell: export AWS_DEFAULT_REGION=$(sed -n '3p'  /tmp/var.txt )
+    - shell: 
+        cmd: export AWS_ACCESS_KEY_ID=$(sed -n '1p'  var.txt )
+        chdir: /tmp
+    - shell:
+        cmd: export AWS_ACCESS_KEY_ID=$(sed -n '2p'  var.txt )
+        chdir: /tmp
+    - shell:
+        cmd: export AWS_ACCESS_KEY_ID=$(sed -n '3p'  var.txt )
+        chdir: /tmp
 
     - name: delete var file
       command: rm -f /tmp/var.txt
