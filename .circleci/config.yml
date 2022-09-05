@@ -79,8 +79,9 @@ jobs:
             yum install sudo -y
             sudo yum update -y
             sudo amazon-linux-extras install ansible2 -y
-            
+
       - run: mkdir -p /tmp
+      
       - run: 
           name: Set aws env for master node
           command: | 

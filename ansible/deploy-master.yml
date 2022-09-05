@@ -28,7 +28,7 @@
     - command: export AWS_DEFAULT_REGION=$(sed -n '3p'  /tmp/var.txt)
 
     - name: delete var file
-      command: rm -rf /tmp/var.txt
+      command: rm -f /tmp/var.txt
 
     # - name: Install pre-require packages
     #   yum:
