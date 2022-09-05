@@ -1,0 +1,4 @@
+node_modules
+package-lock.json
+ansible/k8s.pem
+ansible/inventory.txt

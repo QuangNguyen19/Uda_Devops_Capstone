@@ -1,0 +1,97 @@
+version: 2.1
+jobs:
+  lint:
+    docker:
+      - image: node:16.3-slim
+    steps:
+      - checkout
+
+      - run:
+          name: Install node_modules
+          command: |
+            cd website
+            npm install
+
+      - run: 
+          name: npm lint
+          command: |
+            cd website
+            npm run lint
+
+      - run:
+          name: Install hadolint
+          command: |
+            apt-get update && apt-get install -y wget
+            wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
+            chmod +x /bin/hadolint
+
+      - run: 
+         name: Dockerfile lint
+         command: |
+            cd website
+            hadolint Dockerfile --ignore  DL3006
+  
+  build:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Build and push image
+          command: |
+            cd website
+            source .env
+            docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
+            docker build -t ${DOCKERHUB_USERNAME}/${TITLE} .
+            docker push ${DOCKERHUB_USERNAME}/${TITLE}
+            docker tag ${DOCKERHUB_USERNAME}/${TITLE} ${DOCKERHUB_USERNAME}/parrot:latest
+            docker push ${DOCKERHUB_USERNAME}/parrot:latest
+
+  create-master-node:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+
+      - add_ssh_keys:
+          fingerprints:
+            - "25:4e:11:f3:17:45:ea:ce:ec:b4:02:97:6d:1a:21:7d"
+      
+      - run: 
+          name: create master-stack
+          command: |
+              aws cloudformation deploy \
+              --template-file ansible/template/master-node.yml \
+              --stack-name "master-node"
+
+      - run:
+          name: Get public IP of master node
+          command: |
+              echo "master" > ansible/inventory.txt
+              aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Name,Values=master" "Name=instance-state-name,Values=running" \
+              --output text >> ansible/inventory.txt
+              cat ansible/inventory.txt
+
+      - run:
+          name: Install ansible
+          command: |
+            yum install sudo -y
+            sudo yum update -y
+            sudo amazon-linux-extras install ansible2 -y
+
+      - run: 
+          name: Run eksctl
+          command: |
+            export ANSIBLE_HOST_KEY_CHECKING=False
+            cd ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt main.yml
+workflows:
+  default:
+    jobs:
+      # - lint
+      # - build:
+      #     requires:
+      #       - lint
+      - create-master-node

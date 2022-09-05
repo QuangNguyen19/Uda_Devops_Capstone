@@ -1,0 +1,11 @@
+# exclude everything
+*
+
+# then include
+!app.*js
+!server.*js
+!package.json
+!views
+!public
+!.eslintrc.js
+!.env
