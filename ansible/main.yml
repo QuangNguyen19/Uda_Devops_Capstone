@@ -14,7 +14,7 @@
   pre_tasks:
     - name: "install python for Ansible."
       yum:
-        name: python3
+        name: python2
         state: latest
         update_cache: yes
 
