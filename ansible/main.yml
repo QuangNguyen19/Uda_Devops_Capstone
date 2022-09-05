@@ -1,12 +1,10 @@
 - 
   name: "Test"
   hosts: master
-  become_user: ec2
+  remote_user: ec2-user
   gather_facts: false
   vars:
-    ansible_python_interpreter: /usr/bin/python3
     ansible_host_key_checking: false
-    ansible_stdout_callback: yaml
     
   tasks:
     - name: ptest
