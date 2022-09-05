@@ -22,7 +22,7 @@
     - copy:
         src: /tmp/var.txt
         dest: /tmp/var.txt
-    - shell: export export AWS_ACCESS_KEY_ID=$(head -n 1 /tmp/var.txt)
+    - shell: export AWS_ACCESS_KEY_ID=$(head -n 1 /tmp/var.txt)
       register: test
     
     - debug:
