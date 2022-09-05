@@ -20,4 +20,4 @@
 
   tasks:
     - name: test
-      command: echo "Test"
+      ping:

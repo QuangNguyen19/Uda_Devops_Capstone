@@ -66,7 +66,7 @@ jobs:
       - run:
           name: Get public IP of master node
           command: |
-              echo "master" > ansible/inventory.txt
+              echo "[master]" > ansible/inventory.txt
               aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=master" "Name=instance-state-name,Values=running" \
