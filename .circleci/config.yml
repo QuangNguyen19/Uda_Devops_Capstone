@@ -79,15 +79,22 @@ jobs:
             yum install sudo -y
             sudo yum update -y
             sudo amazon-linux-extras install ansible2 -y
+            
       - run: mkdir -p /tmp
-      - run: echo ${TEST} > /tmp/var.txt
+      - run: 
+          name: Set aws env for master node
+          command: | 
+            echo ${AWS_ACCESS_KEY_ID} > /tmp/var.txt
+            echo ${AWS_SECRET_ACCESS_KEY} >> /tmp/var.txt
+            echo ${AWS_DEFAULT_REGION} >> /tmp/var.txt
+
       - run: 
           name: Run eksctl
           command: |
             export ANSIBLE_HOST_KEY_CHECKING=False
             cd ansible
             cat inventory.txt
-            ansible-playbook -i inventory.txt main.yml
+            ansible-playbook -i inventory.txt deploy-master.yml
             
 workflows:
   default:
