@@ -34,6 +34,9 @@
         chdir: /tmp
 
     - name: delete var file
+      file:
+        path: /tmp/var.txt
+        state: absent
       
 
     # - name: Install pre-require packages
