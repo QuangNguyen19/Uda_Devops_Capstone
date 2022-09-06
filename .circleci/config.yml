@@ -157,7 +157,6 @@ workflows:
             - create-cluster
 
       - check-cluster:
-          cluster-name: udadevops
           requires:
             - aws-eks/create-cluster
 
@@ -167,7 +166,6 @@ workflows:
       # - update-deployment
 
       - check-cluster:
-          cluster-name: udadevops
           requires:
             - update-deployment
 
