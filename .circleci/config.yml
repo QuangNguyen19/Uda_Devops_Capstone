@@ -14,9 +14,9 @@ commands: # a reusable command with parameters
             . make.sh <<parameters.pro-env>>
             cd website
             docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
-            docker build -t ${DOCKERHUB_USERNAME}/parrot:${TITLE} .
-            docker push ${DOCKERHUB_USERNAME}/parrot:${TITLE}
-            docker tag ${DOCKERHUB_USERNAME}/parrot:${TITLE} ${DOCKERHUB_USERNAME}/parrot:latest
+            docker build -t ${DOCKERHUB_USERNAME}/parrot:${WEBSITE_TITLE} .
+            docker push ${DOCKERHUB_USERNAME}/parrot:${WEBSITE_TITLE}
+            docker tag ${DOCKERHUB_USERNAME}/parrot:${WEBSITE_TITLE} ${DOCKERHUB_USERNAME}/parrot:latest
             docker push ${DOCKERHUB_USERNAME}/parrot:latest
 
 orbs:
