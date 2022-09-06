@@ -48,7 +48,7 @@ jobs:
             docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
             docker build -t ${DOCKERHUB_USERNAME}/parrot:${TITLE} .
             docker push ${DOCKERHUB_USERNAME}/parrot:${TITLE}
-            docker tag ${DOCKERHUB_USERNAME}/${TITLE} ${DOCKERHUB_USERNAME}/parrot:latest
+            docker tag ${DOCKERHUB_USERNAME}/parrot:${TITLE} ${DOCKERHUB_USERNAME}/parrot:latest
             docker push ${DOCKERHUB_USERNAME}/parrot:latest
 
       
@@ -74,6 +74,20 @@ jobs:
                 node-type: 't3.medium'
                 nodes-max: 3
                 nodes-min: 2
+
+  create-deployment:
+    docker:
+      - image: cimg/python:3.7
+    steps:
+      - checkout
+      - kubernetes/install
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: 'udadevops'
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          get-rollout-status: true
+          resource-file-path: appdeploy.yml
+          resource-name: deployment/parrot
         
 workflows:
   default:
@@ -84,4 +98,7 @@ workflows:
             - lint
       - create-cluster:
           custom_checkout: "cluster created"
+      - create-deployment:
+          requires:
+            - create-cluster
       # - create-cluster
