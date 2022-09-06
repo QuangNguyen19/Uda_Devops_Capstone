@@ -11,12 +11,10 @@ commands: # a reusable command with parameters
       - run:
           name: Build and push image
           command: |
-            . make.sh <<parameters.pro-env>>
-            cd website
             docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
-            docker build -t ${DOCKERHUB_USERNAME}/parrot:${WEBSITE_TITLE} .
-            docker push ${DOCKERHUB_USERNAME}/parrot:${WEBSITE_TITLE}
-            docker tag ${DOCKERHUB_USERNAME}/parrot:${WEBSITE_TITLE} ${DOCKERHUB_USERNAME}/parrot:latest
+            . make.sh <<parameters.pro-env>>
+            docker push ${DOCKERHUB_USERNAME}/parrot:<<parameters.pro-env>>
+            docker tag ${DOCKERHUB_USERNAME}/parrot:<<parameters.pro-env>> ${DOCKERHUB_USERNAME}/parrot:latest
             docker push ${DOCKERHUB_USERNAME}/parrot:latest
 
 orbs:
@@ -128,9 +126,9 @@ jobs:
           cluster-name: 'udadevops'
           install-kubectl: true
       - kubernetes/delete-resource:
-                  resource-names: parrot
-                  resource-types: deployment
-                  wait: true
+          resource-names: parrot
+          resource-types: deployment
+          wait: true
         
 workflows:
   default:
@@ -144,49 +142,49 @@ workflows:
       # - create-cluster:
       #     custom_checkout: "cluster created"
 
-      - create-cluster:
-          requires:
-            - build-blue
+      # - create-cluster:
+      #     requires:
+      #       - build-blue
 
-      - create-deployment:
-          requires:
-            - create-cluster
+      # - create-deployment:
+      #     requires:
+      #       - create-cluster
 
-      - check-cluster:
-          requires:
-            - create-deployment
+      # - check-cluster:
+      #     requires:
+      #       - create-deployment
 
-      - hold-build-green:
-          type: approval
-          requires:
-            - lint
+      # - hold-build-green:
+      #     type: approval
+      #     requires:
+      #       - lint
 
-      - build-green:
-          requires:
-            - hold-build-green
+      # - build-green:
+      #     requires:
+      #       - hold-build-green
 
-      - aws-eks/update-container-image:
-          requires:
-            - build-green
-          cluster-name: 'udadevops'
-          container-image-updates: parrot=dangquanghui/parrot
-          resource-name: deployment/parrot
-          
+      # - aws-eks/update-container-image:
+      #     get-rollout-status: true
+      #     cluster-name: 'udadevops'
+      #     container-image-updates: parrot=dangquanghui/parrot
+      #     resource-name: deployment/parrot
+      #     requires:
+      #       - build-green
 
-      - check-cluster:
-          requires:
-            - aws-eks/update-container-image
+      # - check-cluster:
+      #     requires:
+      #       - aws-eks/update-container-image
 
-      - hold-clean:
-          type: approval
-          requires:
-            - aws-eks/update-container-image
+      # - hold-clean:
+      #     type: approval
+      #     requires:
+      #       - aws-eks/update-container-image
 
-      - delete-resource:
-          requires:
-            - hold-clean
+      # - delete-resource:
+      #     requires:
+      #       - hold-clean
 
-      - aws-eks/delete-cluster:
-          cluster-name: udadevops
-          requires:
-            - delete-resource
+      # - aws-eks/delete-cluster:
+      #     cluster-name: udadevops
+      #     requires:
+      #       - delete-resource

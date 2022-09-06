@@ -1,12 +1,14 @@
 #!/bin/bash
-export input=${1}
-if [ "${input}" == "blue" ];
+if [ "${1}" == "blue" ];
 then
-    WEBSITE_TITLE='blue'
-    WEBSITE_IMAGE='parrot-1.jpg'
-    WEBSITE_VERSION=1.0.0
+    cd website
+    docker image build --tag dangquanghui/parrot:${1} .
 else
-    WEBSITE_TITLE='green'
-    WEBSITE_IMAGE='parrot-2.jpg'
-    WEBSITE_VERSION=2.0.0
+    cd website
+    docker image build \
+    --build-arg TITLE='Green Parrot' \
+    --build-arg IMAGE='parrot-2.jpg' \
+    --build-arg VERSION='1.1.0' \
+    --tag dangquanghui/parrot:${1} \
+    .
 fi
