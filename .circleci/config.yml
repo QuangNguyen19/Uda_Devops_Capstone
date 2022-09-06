@@ -166,12 +166,13 @@ workflows:
             - hold-build-green
 
       - aws-eks/update-container-image:
+          requires:
+            - build-green
           cluster-name: 'udadevops'
           container-image-updates: parrot=dangquanghui/parrot
           record: true
           resource-name: deployment/parrot
-          requires:
-            - build-green
+          
 
       - check-cluster:
           requires:
