@@ -87,69 +87,94 @@ jobs:
           get-rollout-status: true
           resource-file-path: appdeploy.yml
           resource-name: deployment/parrot
-  
-  delete:
+        
+  update-deployment:
+    parameters:
+      flag_updated:
+        type: string
+        default: ""
+    docker:
+      - image: cimg/python:3.7
+    steps:
+      - when:
+          condition: <<parameters.flag_updated>>
+          steps:
+            - run: echo "Not update to green yet!"
+            
+      - unless:
+          condition: <<parameters.flag_updated>>
+          steps:
+            - aws-eks/update-container-image:
+                cluster-name: 'udadevops'
+                container-image-updates: parrot=dangquanghui/parrot
+                record: true
+                resource-name: deployment/parrot
+            
+            
+  check-cluster:
     docker:
       - image: cimg/python:3.7
     steps:
       - kubernetes/install
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: 'udadevops'
-
-  # check-cluster:
-  #   executor: cimg/python:3.7
-  #   steps:
-  #     - kubernetes/install
-  #     - aws-eks/update-kubeconfig-with-authenticator:
-  #         cluster-name: 'udadevops'
-  #     - run:
-  #         name: check cluster
-  #         command: |
-  #           kubectl get services
-  #           kubectl get pods
-  #           kubectl expose deployment parrot --type=LoadBalancer --port=8080 --target-port=3000
-  #           kubectl get svc
+      - run:
+          name: Check cluster
+          command: |
+            kubectl get svc
+            kubectl get nodes
+            kubectl get deployment
+  
+  delete-resource:
+    docker:
+      - image: cimg/python:3.7
+    steps:
+      - kubernetes/install
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: 'udadevops'
+          install-kubectl: true
+      - kubernetes/delete-resource:
+                  resource-names: parrot
+                  resource-types: deployment
+                  wait: true
         
 workflows:
   default:
     jobs:
-      # - lint
-      # - build:
-      #     requires:
-      #       - lint
+      - lint
+      - build:
+          requires:
+            - lint
+
       # - create-cluster:
       #     custom_checkout: "cluster created"
-      # - create-deployment:
-      #     requires:
-      #       - build
-      #       - create-cluster
-      # - create-cluster
 
-      # - aws-eks/update-container-image:
-      #     cluster-name: gudadevops
-      #     container-image-updates: parrot=dangquanghui/parrot
-      #     post-steps:
-      #         - kubernetes/delete-resource:
-      #             resource-names: parrot
-      #             resource-types: deployment
-      #             wait: true
-      #     record: true
-      #     # requires:
-      #     #     - create-deployment
-      #     resource-name: deployment/parrot
-      # - check-cluster:
-      #     cluster-name: udadevops
-      #     # requires:
-      #     #   - aws-eks/create-cluster
+      - create-cluster
 
-      - delete:
-          post-steps:
-            - kubernetes/delete-resource:
-                resource-names: parrot
-                resource-types: deployment
-                wait: true
+      - create-deployment:
+          requires:
+            - build
+            - create-cluster
+
+      - check-cluster:
+          cluster-name: udadevops
+          requires:
+            - aws-eks/create-cluster
+
+      - update-deployment:
+          flag_updated: "No"
+
+      # - update-deployment
+
+      - check-cluster:
+          cluster-name: udadevops
+          requires:
+            - update-deployment
+
+      - delete-resource:
+          type: approval
 
       - aws-eks/delete-cluster:
           cluster-name: udadevops
           requires:
-            - delete
+            - delete-resource
