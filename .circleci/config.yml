@@ -1,5 +1,24 @@
 version: 2.1
 
+commands: # a reusable command with parameters
+  build:
+    parameters:
+      pro-env:
+        type: string
+    steps:
+      - run: echo "Start build <<parameters.pro-env>> image"
+      - checkout
+      - run:
+          name: Build and push image
+          command: |
+            . make.sh <<parameters.pro-env>>
+            cd website
+            docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
+            docker build -t ${DOCKERHUB_USERNAME}/parrot:${TITLE} .
+            docker push ${DOCKERHUB_USERNAME}/parrot:${TITLE}
+            docker tag ${DOCKERHUB_USERNAME}/parrot:${TITLE} ${DOCKERHUB_USERNAME}/parrot:latest
+            docker push ${DOCKERHUB_USERNAME}/parrot:latest
+
 orbs:
   aws-eks: circleci/aws-eks@2.2.0
   kubernetes: circleci/kubernetes@1.3.1
@@ -36,20 +55,18 @@ jobs:
             cd website
             hadolint Dockerfile --ignore  DL3006
   
-  build:
+  build-blue:
     machine: true
     steps:
-      - checkout
-      - run:
-          name: Build and push image
-          command: |
-            . make.sh blue
-            cd website
-            docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
-            docker build -t ${DOCKERHUB_USERNAME}/parrot:${TITLE} .
-            docker push ${DOCKERHUB_USERNAME}/parrot:${TITLE}
-            docker tag ${DOCKERHUB_USERNAME}/parrot:${TITLE} ${DOCKERHUB_USERNAME}/parrot:latest
-            docker push ${DOCKERHUB_USERNAME}/parrot:latest
+      - build:
+          pro-env: blue
+
+  build-green:
+    machine: true
+    steps:
+      - build:
+          pro-env: green
+  
       
   create-cluster:
     parameters:
@@ -87,7 +104,7 @@ jobs:
           get-rollout-status: true
           resource-file-path: appdeploy.yml
           resource-name: deployment/parrot
-                    
+
   check-cluster:
     docker:
       - image: cimg/python:3.7
@@ -119,8 +136,8 @@ workflows:
   default:
     jobs:
       - lint
-      
-      - build:
+
+      - build-blue:
           requires:
             - lint
 
@@ -129,7 +146,7 @@ workflows:
 
       - create-cluster:
           requires:
-            - build
+            - build-blue
 
       - create-deployment:
           requires:
@@ -139,19 +156,35 @@ workflows:
           requires:
             - create-deployment
 
-      - aws-eks/update-container-image:
+      - hold-build-green:
           type: approval
+          requires:
+            - check-cluster
+
+      - build-green:
+          requires:
+            - hold-build-green
+
+      - aws-eks/update-container-image:
           cluster-name: 'udadevops'
           container-image-updates: parrot=dangquanghui/parrot
           record: true
           resource-name: deployment/parrot
+          requires:
+            - build-green
 
       - check-cluster:
           requires:
             - aws-eks/update-container-image
 
-      - delete-resource:
+      - hold-clean:
           type: approval
+          requires:
+            - aws-eks/update-container-image
+
+      - delete-resource:
+          requires:
+            - hold-clean
 
       - aws-eks/delete-cluster:
           cluster-name: udadevops
