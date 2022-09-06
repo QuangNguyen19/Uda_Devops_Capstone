@@ -43,8 +43,13 @@ jobs:
       - run:
           name: Build and push image
           command: |
-            make blue
-            echo ${TITLE}
+            . make.sh blue
+            cd website
+            docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
+            docker build -t ${DOCKERHUB_USERNAME}/${TITLE} .
+            docker push ${DOCKERHUB_USERNAME}/${TITLE}
+            docker tag ${DOCKERHUB_USERNAME}/${TITLE} ${DOCKERHUB_USERNAME}/parrot:latest
+            docker push ${DOCKERHUB_USERNAME}/parrot:latest
 
       
   create-cluster:
