@@ -119,39 +119,41 @@ workflows:
   default:
     jobs:
       - lint
+      
       - build:
           requires:
             - lint
 
-      # # - create-cluster:
-      # #     custom_checkout: "cluster created"
+      # - create-cluster:
+      #     custom_checkout: "cluster created"
 
-      # - create-cluster
+      - create-cluster:
+          requires:
+            - build
 
-      # - create-deployment:
-      #     requires:
-      #       - build
-      #       - create-cluster
+      - create-deployment:
+          requires:
+            - create-cluster
 
-      # - check-cluster:
-      #     requires:
-      #       - create-deployment
+      - check-cluster:
+          requires:
+            - create-deployment
 
-      # - aws-eks/update-container-image:
-      #     type: approval
-      #     cluster-name: 'udadevops'
-      #     container-image-updates: parrot=dangquanghui/parrot
-      #     record: true
-      #     resource-name: deployment/parrot
+      - aws-eks/update-container-image:
+          type: approval
+          cluster-name: 'udadevops'
+          container-image-updates: parrot=dangquanghui/parrot
+          record: true
+          resource-name: deployment/parrot
 
-      # - check-cluster:
-      #     requires:
-      #       - aws-eks/update-container-image
+      - check-cluster:
+          requires:
+            - aws-eks/update-container-image
 
-      # - delete-resource:
-      #     type: approval
+      - delete-resource:
+          type: approval
 
-      # - aws-eks/delete-cluster:
-      #     cluster-name: udadevops
-      #     requires:
-      #       - delete-resource
+      - aws-eks/delete-cluster:
+          cluster-name: udadevops
+          requires:
+            - delete-resource
