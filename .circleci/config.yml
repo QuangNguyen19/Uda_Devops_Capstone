@@ -46,7 +46,7 @@ jobs:
             . make.sh blue
             cd website
             docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
-            docker build -t ${DOCKERHUB_USERNAME}/${TITLE} .
+            docker build -t ${DOCKERHUB_USERNAME}/parrot:${TITLE} .
             docker push ${DOCKERHUB_USERNAME}/parrot:${TITLE}
             docker tag ${DOCKERHUB_USERNAME}/${TITLE} ${DOCKERHUB_USERNAME}/parrot:latest
             docker push ${DOCKERHUB_USERNAME}/parrot:latest
@@ -82,6 +82,6 @@ workflows:
       - build:
           requires:
             - lint
-      # - create-cluster:
-      #     custom_checkout: "cluster created"
-      - create-cluster
+      - create-cluster:
+          custom_checkout: "cluster created"
+      # - create-cluster
