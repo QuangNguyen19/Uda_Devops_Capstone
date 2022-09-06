@@ -159,7 +159,7 @@ workflows:
       - hold-build-green:
           type: approval
           requires:
-            - check-cluster
+            - lint
 
       - build-green:
           requires:
