@@ -87,30 +87,7 @@ jobs:
           get-rollout-status: true
           resource-file-path: appdeploy.yml
           resource-name: deployment/parrot
-        
-  update-deployment:
-    parameters:
-      flag_updated:
-        type: string
-        default: ""
-    docker:
-      - image: cimg/python:3.7
-    steps:
-      - when:
-          condition: <<parameters.flag_updated>>
-          steps:
-            - run: echo "Not update to green yet!"
-            
-      - unless:
-          condition: <<parameters.flag_updated>>
-          steps:
-            - aws-eks/update-container-image:
-                cluster-name: 'udadevops'
-                container-image-updates: parrot=dangquanghui/parrot
-                record: true
-                resource-name: deployment/parrot
-            
-            
+                    
   check-cluster:
     docker:
       - image: cimg/python:3.7
@@ -160,14 +137,16 @@ workflows:
           requires:
             - aws-eks/create-cluster
 
-      - update-deployment:
-          flag_updated: "No"
-
-      # - update-deployment
+      - aws-eks/update-container-image:
+          type: approval
+          cluster-name: 'udadevops'
+          container-image-updates: parrot=dangquanghui/parrot
+          record: true
+          resource-name: deployment/parrot
 
       - check-cluster:
           requires:
-            - update-deployment
+            - aws-eks/update-container-image
 
       - delete-resource:
           type: approval
