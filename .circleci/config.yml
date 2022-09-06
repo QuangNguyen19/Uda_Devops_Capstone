@@ -100,5 +100,6 @@ workflows:
           custom_checkout: "cluster created"
       - create-deployment:
           requires:
+            - build
             - create-cluster
       # - create-cluster
