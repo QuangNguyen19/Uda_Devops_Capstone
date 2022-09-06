@@ -45,7 +45,6 @@ jobs:
           command: |
             make blue
             cd website
-            source .env
             docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
             docker build -t ${DOCKERHUB_USERNAME}/${TITLE} .
             docker push ${DOCKERHUB_USERNAME}/${TITLE}
