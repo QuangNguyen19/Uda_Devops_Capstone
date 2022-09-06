@@ -170,7 +170,6 @@ workflows:
             - build-green
           cluster-name: 'udadevops'
           container-image-updates: parrot=dangquanghui/parrot
-          record: true
           resource-name: deployment/parrot
           
 
