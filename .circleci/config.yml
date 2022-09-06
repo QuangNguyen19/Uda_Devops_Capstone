@@ -47,7 +47,7 @@ jobs:
             cd website
             docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
             docker build -t ${DOCKERHUB_USERNAME}/${TITLE} .
-            docker push ${DOCKERHUB_USERNAME}/${TITLE}
+            docker push ${DOCKERHUB_USERNAME}/parrot:${TITLE}
             docker tag ${DOCKERHUB_USERNAME}/${TITLE} ${DOCKERHUB_USERNAME}/parrot:latest
             docker push ${DOCKERHUB_USERNAME}/parrot:latest
 
@@ -70,6 +70,9 @@ jobs:
             - checkout
             - aws-eks/create-cluster:
                 cluster-name: udadevops
+                node-type: 't3.medium'
+                nodes-max: 3
+                nodes-min: 2
         
 workflows:
   default:
@@ -80,4 +83,4 @@ workflows:
             - lint
       # - create-cluster:
       #     custom_checkout: "cluster created"
-      # - create-cluster
+      - create-cluster
