@@ -1,107 +1,107 @@
-version: 2.1
-jobs:
-  lint:
-    docker:
-      - image: node:16.3-slim
-    steps:
-      - checkout
+# version: 2.1
 
-      - run:
-          name: Install node_modules
-          command: |
-            cd website
-            npm install
+# orbs:
+#   aws-eks: circleci/aws-eks@2.2.0
+#   kubernetes: circleci/kubernetes@1.3.1
 
-      - run: 
-          name: npm lint
-          command: |
-            cd website
-            npm run lint
+# jobs:
+#   lint:
+#     docker:
+#       - image: node:16.3-slim
+#     steps:
+#       - checkout
 
-      - run:
-          name: Install hadolint
-          command: |
-            apt-get update && apt-get install -y wget
-            wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
-            chmod +x /bin/hadolint
+#       - run:
+#           name: Install node_modules
+#           command: |
+#             cd website
+#             npm install
 
-      - run: 
-         name: Dockerfile lint
-         command: |
-            cd website
-            hadolint Dockerfile --ignore  DL3006
+#       - run: 
+#           name: npm lint
+#           command: |
+#             cd website
+#             npm run lint
+
+#       - run:
+#           name: Install hadolint
+#           command: |
+#             apt-get update && apt-get install -y wget
+#             wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
+#             chmod +x /bin/hadolint
+
+#       - run: 
+#          name: Dockerfile lint
+#          command: |
+#             cd website
+#             hadolint Dockerfile --ignore  DL3006
   
-  build:
-    machine: true
-    steps:
-      - checkout
-      - run:
-          name: Build and push image
-          command: |
-            cd website
-            source .env
-            docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
-            docker build -t ${DOCKERHUB_USERNAME}/${TITLE} .
-            docker push ${DOCKERHUB_USERNAME}/${TITLE}
-            docker tag ${DOCKERHUB_USERNAME}/${TITLE} ${DOCKERHUB_USERNAME}/parrot:latest
-            docker push ${DOCKERHUB_USERNAME}/parrot:latest
+#   build:
+#     machine: true
+#     steps:
+#       - checkout
+#       - run:
+#           name: Build and push image
+#           command: |
+#             cd website
+#             source .env
+#             docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
+#             docker build -t ${DOCKERHUB_USERNAME}/${TITLE} .
+#             docker push ${DOCKERHUB_USERNAME}/${TITLE}
+#             docker tag ${DOCKERHUB_USERNAME}/${TITLE} ${DOCKERHUB_USERNAME}/parrot:latest
+#             docker push ${DOCKERHUB_USERNAME}/parrot:latest
 
-  create-master-node:
-    docker:
-      - image: amazon/aws-cli
-    steps:
-      - checkout
-
-      - add_ssh_keys:
-          fingerprints:
-            - "25:4e:11:f3:17:45:ea:ce:ec:b4:02:97:6d:1a:21:7d"
+#   check-cluster:
+#     docker:
+#       - image: amazon/aws-cli
+#     steps:
+#       - checkout
+#       - run: mkdir -p /tmp
+#       - run: aws eks describe-cluster --name udadevops > cluster_info.txt
+#       - save_cache:
+#           paths:
+#             - /tmp
+#           key: cluster_info-{{ .Environment.CIRCLE_WORKFLOW_ID }}
       
-      - run: 
-          name: create master-stack
-          command: |
-              aws cloudformation deploy \
-              --template-file ansible/template/master-node.yml \
-              --stack-name "master-node"
+#   create-cluster:
+#     executor: aws-eks
+#     steps:
+#       - checkout
+#       - aws-eks/create-cluster:
+#           cluster-name: udadevops
 
-      - run:
-          name: Get public IP of master node
-          command: |
-              echo "[master]" > ansible/inventory.txt
-              aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Name,Values=master" "Name=instance-state-name,Values=running" \
-              --output text >> ansible/inventory.txt
-              cat ansible/inventory.txt
-
-      - run:
-          name: Install ansible
-          command: |
-            yum install sudo -y
-            sudo yum update -y
-            sudo amazon-linux-extras install ansible2 -y
-
-      - run: mkdir -p /tmp
       
-      - run: 
-          name: Set aws env for master node
-          command: | 
-            echo ${AWS_ACCESS_KEY_ID} > /tmp/var.txt
-            echo ${AWS_SECRET_ACCESS_KEY} >> /tmp/var.txt
-            echo ${AWS_DEFAULT_REGION} >> /tmp/var.txt
-
-      - run: 
-          name: Run eksctl
-          command: |
-            export ANSIBLE_HOST_KEY_CHECKING=False
-            cd ansible
-            cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-master.yml
             
+# workflows:
+#   default:
+#     jobs:
+#       # - lint
+#       # - build:
+#       #     requires:
+#       #       - lint
+#       - create-master-node
+version: 2.1
+
+jobs: # conditional steps may also be defined in `commands:`
+  job_with_optional_custom_checkout:
+    parameters:
+      custom_checkout:
+        type: string
+        default: ""
+    machine:
+      image: ubuntu-2004:202107-02
+    steps:
+      - when:
+          condition: <<parameters.custom_checkout>>
+          steps:
+            - run: echo "my custom checkout"
+      - unless:
+          condition: <<parameters.custom_checkout>>
+          steps:
+            - checkout
 workflows:
-  default:
+  build-test-deploy:
     jobs:
-      # - lint
-      # - build:
-      #     requires:
-      #       - lint
-      - create-master-node
+      - job_with_optional_custom_checkout:
+          custom_checkout: "any non-empty string is truthy"
+      - job_with_optional_custom_checkout
