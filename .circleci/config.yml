@@ -135,7 +135,7 @@ workflows:
 
       - check-cluster:
           requires:
-            - aws-eks/create-cluster
+            - create-deployment
 
       - aws-eks/update-container-image:
           type: approval
