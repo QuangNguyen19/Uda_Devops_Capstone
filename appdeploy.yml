@@ -21,7 +21,7 @@ spec:
         app: parrot
     spec:
       containers:
-        - image: dangquanghui/parrot
+        - image: dangquanghu/parrot
           imagePullPolicy: Always
           name: parrot
           ports:
@@ -40,5 +40,5 @@ spec:
     app: parrot
   ports:
     - port: 3000
-      targetPort: 3000
+      targetPort: 8080
       protocol: TCP
