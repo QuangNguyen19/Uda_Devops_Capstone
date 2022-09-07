@@ -2,10 +2,8 @@
 
 ## Project
 
--
-
-* circleci/aws-eks@2.2.0
-* circleci/kubernetes@1.3.1
+- circleci/aws-eks@2.2.0
+- circleci/kubernetes@1.3.1
 
 ## Linting job
 

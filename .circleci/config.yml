@@ -84,7 +84,7 @@ jobs:
           steps:
             - checkout
             - aws-eks/create-cluster:
-                cluster-name: udadevops
+                cluster-name: udacitydevops
                 node-type: 't3.medium'
                 nodes-max: 3
                 nodes-min: 2
@@ -96,7 +96,7 @@ jobs:
       - checkout
       - kubernetes/install
       - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: 'udadevops'
+          cluster-name: 'udacitydevops'
           install-kubectl: true
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
@@ -109,7 +109,7 @@ jobs:
     steps:
       - kubernetes/install
       - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: 'udadevops'
+          cluster-name: 'udacitydevops'
       - run:
           name: Check cluster
           command: |
@@ -123,7 +123,7 @@ jobs:
     steps:
       - kubernetes/install
       - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: 'udadevops'
+          cluster-name: 'udacitydevops'
           install-kubectl: true
       - kubernetes/delete-resource:
           resource-names: parrot
@@ -167,7 +167,7 @@ workflows:
 
       - aws-eks/update-container-image:
           get-rollout-status: true
-          cluster-name: 'udadevops'
+          cluster-name: 'udacitydevops'
           container-image-updates: parrot=dangquanghui/parrot
           resource-name: deployment/parrot
           requires:
@@ -187,6 +187,6 @@ workflows:
             - hold-clean
 
       - aws-eks/delete-cluster:
-          cluster-name: udadevops
+          cluster-name: udacitydevops
           requires:
             - delete-resource
