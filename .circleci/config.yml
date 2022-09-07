@@ -142,49 +142,49 @@ workflows:
       # - create-cluster:
       #     custom_checkout: "cluster created"
 
-      # - create-cluster:
-      #     requires:
-      #       - build-blue
+      - create-cluster:
+          requires:
+            - build-blue
 
-      # - create-deployment:
-      #     requires:
-      #       - create-cluster
+      - create-deployment:
+          requires:
+            - create-cluster
 
-      # - check-cluster:
-      #     requires:
-      #       - create-deployment
+      - check-cluster:
+          requires:
+            - create-deployment
 
-      # - hold-build-green:
-      #     type: approval
-      #     requires:
-      #       - lint
+      - hold-build-green:
+          type: approval
+          requires:
+            - lint
 
-      # - build-green:
-      #     requires:
-      #       - hold-build-green
+      - build-green:
+          requires:
+            - hold-build-green
 
-      # - aws-eks/update-container-image:
-      #     get-rollout-status: true
-      #     cluster-name: 'udadevops'
-      #     container-image-updates: parrot=dangquanghui/parrot
-      #     resource-name: deployment/parrot
-      #     requires:
-      #       - build-green
+      - aws-eks/update-container-image:
+          get-rollout-status: true
+          cluster-name: 'udadevops'
+          container-image-updates: parrot=dangquanghui/parrot
+          resource-name: deployment/parrot
+          requires:
+            - build-green
 
-      # - check-cluster:
-      #     requires:
-      #       - aws-eks/update-container-image
+      - check-cluster:
+          requires:
+            - aws-eks/update-container-image
 
-      # - hold-clean:
-      #     type: approval
-      #     requires:
-      #       - aws-eks/update-container-image
+      - hold-clean:
+          type: approval
+          requires:
+            - aws-eks/update-container-image
 
-      # - delete-resource:
-      #     requires:
-      #       - hold-clean
+      - delete-resource:
+          requires:
+            - hold-clean
 
-      # - aws-eks/delete-cluster:
-      #     cluster-name: udadevops
-      #     requires:
-      #       - delete-resource
+      - aws-eks/delete-cluster:
+          cluster-name: udadevops
+          requires:
+            - delete-resource
