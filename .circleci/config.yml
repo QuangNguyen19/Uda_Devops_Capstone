@@ -141,6 +141,8 @@ workflows:
 
       # - create-cluster:
       #     custom_checkout: "cluster created"
+      #     requires:
+      #       - build-blue
 
       - create-cluster:
           requires:
