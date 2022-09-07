@@ -2,10 +2,10 @@
 
 ## Project
 
-Use Circle to build pipline that deploys EKS cluster on AWS and performs rolling update strategy of K8s by using Circle CI orbs:
+-
 
-- circleci/aws-eks@2.2.0
-- circleci/kubernetes@1.3.1
+* circleci/aws-eks@2.2.0
+* circleci/kubernetes@1.3.1
 
 ## Linting job
 
@@ -60,7 +60,7 @@ Ensure you run right order of each step on create-deployment job:
 - aws-eks/update-kubeconfig-with-authenticator using aws-eks orbs
 - kubernetes/create-or-update-resource using kuberneste orbs
 
-## After you build v2 image using my pipline you can update image of previous deployment to perform rolling update
+## Update image of privous deployment to perform Rolling update
 
 ```bash
 - aws-eks/update-container-image:
@@ -70,11 +70,9 @@ Ensure you run right order of each step on create-deployment job:
           resource-name: deployment/parrot
           requires:
             - build-green
-
-
 ```
 
-## Note: some jobs on the pipline need manually trigger.
+## Note: some job need manually trigger
 
-- Build-green
-- Delete-resource
+- build-green
+- delete-resource
