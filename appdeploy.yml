@@ -21,7 +21,7 @@ spec:
         app: parrot
     spec:
       containers:
-        - image: dangquanghui/parrot:green
+        - image: dangquanghui/parrot:blue
           imagePullPolicy: Always
           name: parrot
           ports:

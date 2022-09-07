@@ -18,7 +18,7 @@ app.locals.version =
   process.env.WEBSITE_VERSION || require('./package.json').version
 
 app.get('/', async (req, res) => {
-  res.render('index')
+  res.render('index')x
 })
 
 app.get('/healthcheck', (req, res) => {
