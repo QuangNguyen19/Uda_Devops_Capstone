@@ -1,5 +1,4 @@
-[![<ORG_NAME>](https://circleci.com/gh/QuangNguyen19/Uda_Devops_Capstone
-.svg?style=svg)](https://app.circleci.com/pipelines/github/QuangNguyen19/Uda_Devops_Capstone/85/workflows/0e37965a-c85e-4354-aba2-c73643bd5f30)
+[![<ORG_NAME>](https://circleci.com/gh/QuangNguyen19/Uda_Devops_Capstone.svg?style=svg)](https://app.circleci.com/pipelines/github/QuangNguyen19/Uda_Devops_Capstone/85/workflows/0e37965a-c85e-4354-aba2-c73643bd5f30)
 
 # Udacity Capstone
 
